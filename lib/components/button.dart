@@ -8,12 +8,14 @@ class Button extends StatelessWidget {
   final String text;
   final bool duplo;
   final Color color;
+  final void Function(String) cb;
 
   Button({
     super.key,
     required this.text,
     this.duplo = false,
     this.color = DEFAULT,
+    required this.cb,
   });
 
   Button.duplo({
@@ -21,6 +23,7 @@ class Button extends StatelessWidget {
     required this.text,
     this.duplo = true,
     this.color = DEFAULT,
+    required this.cb,
   });
 
   Button.operation({
@@ -28,6 +31,7 @@ class Button extends StatelessWidget {
     required this.text,
     this.duplo = false,
     this.color = OPERATION,
+    required this.cb,
   });
   @override
   Widget build(BuildContext context) {
@@ -37,7 +41,7 @@ class Button extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: this.color,
         ),
-        onPressed: () {},
+        onPressed: () => cb(text),
         child: Text(
           text,
           style: TextStyle(
