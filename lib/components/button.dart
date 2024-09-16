@@ -40,6 +40,7 @@ class Button extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: this.color,
+          //side: BorderSide(width: 1),
         ),
         onPressed: () => cb(text),
         child: Text(
