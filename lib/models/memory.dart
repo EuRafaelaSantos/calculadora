@@ -1,12 +1,17 @@
 class Memory {
   static const operations = ['%', '/', 'x', '-', '+', '='];
   String _value = '0';
-  final _butter = [0.0, 0.0];
-  String? operation;
+  final _buffer = [0.0, 0.0];
+  String? _operation;
   int _bufferIndex = 0;
   bool _wipeValue = false;
+  String? _lastCommand;
 
   void applyCommand(String command) {
+    if (_isReplacingOperation(command)) {
+      _operation = command;
+      return;
+    }
     if (command == 'AC') {
       _allClear();
     } else if (operations.contains(command)) {
@@ -14,14 +19,60 @@ class Memory {
     } else {
       _addDigit(command);
     }
+
+    _lastCommand = command;
+  }
+
+  _isReplacingOperation(String command) {
+    return operations.contains(_lastCommand) &&
+        operations.contains(command) &&
+        _lastCommand != '=' &&
+        command != '=';
   }
 
   _setOperation(String newOperation) {
-    _wipeValue = true;
+    bool isEqualSing = newOperation == '=';
+    if (_bufferIndex == 0) {
+      if (!isEqualSing) {
+        _operation = newOperation;
+        _bufferIndex = 1;
+        _wipeValue = true;
+      }
+    } else {
+      _buffer[0] = _calculate();
+      _buffer[1] = 0.0;
+      _value = _buffer[0].toString();
+      _value = _value.endsWith('.') ? _value.split('.')[0] : _value;
+      _operation = isEqualSing ? null : newOperation;
+      _bufferIndex = isEqualSing ? 0 : 1;
+    }
+
+    _wipeValue = true; //!isEqualSing;
   }
 
   _allClear() {
     _value = '0';
+    _buffer.setAll(0, [0.0, 0.0]);
+    _operation = null;
+    _bufferIndex = 0;
+    _wipeValue = false;
+  }
+
+  _calculate() {
+    switch (_operation) {
+      case '%':
+        return _buffer[0] % _buffer[1];
+      case '/':
+        return _buffer[0] / _buffer[1];
+      case 'x':
+        return _buffer[0] * _buffer[1];
+      case '-':
+        return _buffer[0] - _buffer[1];
+      case '+':
+        return _buffer[0] + _buffer[1];
+      default:
+        return _buffer[0];
+    }
   }
 
   _addDigit(String digit) {
@@ -37,7 +88,7 @@ class Memory {
     _value = currentValue + digit;
     _wipeValue = false;
 
-    _butter[_bufferIndex] = double.tryParse(_value) ?? 0;
+    _buffer[_bufferIndex] = double.tryParse(_value) ?? 0;
   }
 
   String get value {
